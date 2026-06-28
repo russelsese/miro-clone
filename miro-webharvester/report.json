@@ -1,0 +1,13 @@
+{
+  "pageUrl": "https://au.miro.com/app/board/u3jVOfztuv8=/",
+  "timestamp": "2026-04-14T22:38:41.591Z",
+  "totals": {
+    "discovered": 213,
+    "fetched": 213,
+    "failed": 0,
+    "skipped": 0,
+    "truncated": 0
+  },
+  "failures": [],
+  "skipped": []
+}

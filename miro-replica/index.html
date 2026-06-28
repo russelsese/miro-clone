@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en" class="board-opened">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyRACP - Integrations Alignment Workshop - Part 1 - Miro</title>
+  <link rel="icon" type="image/png" href="assets/img/951b806349b39191-39e37fab.png" sizes="32x32">
+  <link rel="shortcut icon" href="assets/img/a2ec6e0776521a79-d9644b6c.ico">
+  <style>
+    /* ===== CSS RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #f2f2f2;
+      --color-canvas: #f5f5f5;
+      --color-white: #ffffff;
+      --color-yellow: #ffd900;
+      --color-blue: #4262ff;
+      --color-blue-hover: #3354e0;
+      --color-text: #1a1a1a;
+      --color-text-secondary: #5f6368;
+      --color-border: #e0e0e0;
+      --color-toolbar-bg: #ffffff;
+      --color-toolbar-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      --color-hover: #f0f0f0;
+      --color-active: #e8ecff;
+      --color-active-icon: #4262ff;
+      --toolbar-item-size: 36px;
+      --toolbar-icon-size: 20px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --sidebar-width: 72px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--color-bg);
+      font-family: 'Noto Sans', 'Open Sans', Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      color: var(--color-text);
+      user-select: none;
+    }
+
+    /* ===== LOADER ===== */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease;
+    }
+    #loader.hidden { opacity: 0; pointer-events: none; }
+
+    .loader-logo {
+      width: 80px;
+      height: 80px;
+      background: var(--color-yellow);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loader-logo-inner {
+      width: 48px;
+      height: 48px;
+      position: relative;
+    }
+    .loader-logo-inner span {
+      display: block;
+      position: absolute;
+      width: 12px;
+      height: 48px;
+      background: #1a1a1a;
+      border-radius: 3px;
+      animation: logo-slide 1.8s ease-in-out infinite;
+    }
+    .loader-logo-inner span:nth-child(1) { left: 0; animation-delay: 0s; }
+    .loader-logo-inner span:nth-child(2) { left: 18px; animation-delay: 0.08s; }
+    .loader-logo-inner span:nth-child(3) { left: 36px; animation-delay: 0.16s; }
+
+    @keyframes logo-slide {
+      0% { transform: translateX(-60px); }
+      30% { transform: translateX(0); }
+      60% { transform: translateX(0); }
+      90%, 100% { transform: translateX(60px); }
+    }
+
+    .loader-text {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* ===== TOP BAR ===== */
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: var(--color-white);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      z-index: 100;
+      gap: 8px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+
+    .topbar-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      transition: background 0.15s;
+    }
+    .btn-icon:hover { background: var(--color-hover); color: var(--color-text); }
+    .btn-icon svg { width: 18px; height: 18px; }
+
+    /* Miro Logo in topbar */
+    .miro-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--color-yellow);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .miro-logo svg { width: 24px; height: 24px; }
+
+    .board-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    .board-breadcrumb a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .board-breadcrumb a:hover { background: var(--color-hover); color: var(--color-text); }
+    .board-breadcrumb .separator { color: #ccc; }
+    .board-title {
+      font-weight: 600;
+      color: var(--color-text);
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .board-title:hover { background: var(--color-hover); }
+
+    .topbar-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--color-border);
+      margin: 0 4px;
+    }
+
+    .btn-share {
+      padding: 0 16px;
+      height: 32px;
+      background: var(--color-blue);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-share:hover { background: var(--color-blue-hover); }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #7b61ff, #4262ff);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .user-avatar:hover { border-color: var(--color-blue); }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #856404;
+      cursor: pointer;
+    }
+
+    /* ===== LEFT SIDEBAR / TOOLBAR ===== */
+    #left-toolbar {
+      position: fixed;
+      top: 56px;
+      left: 8px;
+      bottom: 56px;
+      width: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 90;
+      padding: 4px;
+    }
+
+    .toolbar-panel {
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--color-toolbar-shadow);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .tool-btn {
+      width: var(--toolbar-item-size);
+      height: var(--toolbar-item-size);
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      position: relative;
+      transition: background 0.15s, color 0.15s;
+      gap: 2px;
+    }
+    .tool-btn:hover {
+      background: var(--color-hover);
+      color: var(--color-text);
+    }
+    .tool-btn.active {
+      background: var(--color-active);
+      color: var(--color-active-icon);
+    }
+    .tool-btn svg {
+      width: var(--toolbar-icon-size);
+      height: var(--toolbar-icon-size);
+      flex-shrink: 0;
+    }
+    .tool-btn .tool-label {
+      font-size: 9px;
+      line-height: 1;
+      text-align: center;
+      margin-top: 1px;
+      display: none;
+    }
+
+    .tool-divider {
+      width: 28px;
+      height: 1px;
+      background: var(--color-border);
+      margin: 2px 0;
+    }
+
+    /* Toolbar section with expander arrow */
+    .tool-group-expander {
+      position: absolute;
+      right: -3px;
+      bottom: -2px;
+      width: 10px;
+      height: 10px;
+    }
+    .tool-group-expander svg { width: 10px; height: 10px; }
+
+    /* ===== CANVAS ===== */
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      top: 48px;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    #canvas {
+      width: 100%;
+      height: 100%;
+      background-color: #f5f5f5;
+      background-image:
+        radial-gradient(circle, #d0d0d0 1px, transparent 1px);
+      background-size: 24px 24px;
+      position: relative;
+      transform-origin: 0 0;
+    }
+
+    /* ===== CANVAS CONTENT (board elements) ===== */
+    .board-frame {
+      position: absolute;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .frame-title {
+      position: absolute;
+      top: -28px;
+      left: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    .sticky-note {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.5;
+      cursor: pointer;
+      box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+      word-wrap: break-word;
+      transition: box-shadow 0.15s, transform 0.15s;
+      display: flex;
+      align-items: flex-start;
+    }
+    .sticky-note:hover {
+      box-shadow: 4px 8px 16px rgba(0,0,0,0.2);
+      transform: scale(1.02);
+      z-index: 10;
+    }
+    .sticky-note.yellow { background: #ffd966; }
+    .sticky-note.blue-light { background: #cce5ff; }
+    .sticky-note.green { background: #b7f0c8; }
+    .sticky-note.pink { background: #ffb3c1; }
+    .sticky-note.orange { background: #ffd6a5; }
+    .sticky-note.purple { background: #d8b4fe; }
+    .sticky-note.white { background: #ffffff; border: 1px solid #e0e0e0; }
+    .sticky-note.teal { background: #99e2d0; }
+
+    .shape-rect {
+      position: absolute;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 12px;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .shape-rect:hover { border-color: var(--color-blue); }
+
+    .connector {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .text-label {
+      position: absolute;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .text-label.heading {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .text-label.subheading {
+      font-size: 15px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .image-widget {
+      position: absolute;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .image-widget img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ===== BOTTOM RIGHT CONTROLS ===== */
+    #canvas-controls {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 90;
+    }
+
+    .zoom-panel {
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--color-toolbar-shadow);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    .zoom-btn:hover { background: var(--color-hover); color: var(--color-text); }
+    .zoom-btn svg { width: 16px; height: 16px; }
+
+    .zoom-level {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      padding: 2px 4px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .zoom-level:hover { background: var(--color-hover); }
+
+    .zoom-divider {
+      width: 20px;
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    /* ===== BOTTOM CENTER: MINIMAP + PAGE CONTROLS ===== */
+    #bottom-center {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 90;
+    }
+
+    .page-panel {
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--color-toolbar-shadow);
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .page-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      transition: background 0.15s;
+    }
+    .page-btn:hover { background: var(--color-hover); }
+    .page-btn svg { width: 14px; height: 14px; }
+
+    .page-indicator {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      padding: 0 4px;
+    }
+
+    /* ===== COLLABORATORS BAR (top right area) ===== */
+    .collaborators {
+      display: flex;
+      align-items: center;
+      gap: -4px;
+    }
+    .collab-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      margin-left: -6px;
+      cursor: pointer;
+    }
+    .collab-avatar:first-child { margin-left: 0; }
+    .ca-1 { background: #ff6b6b; }
+    .ca-2 { background: #4ecdc4; }
+    .ca-3 { background: #45b7d1; }
+
+    /* ===== TOOLTIP ===== */
+    .tooltip-wrapper { position: relative; }
+    .tooltip {
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: #333;
+      color: white;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 200;
+    }
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-right-color: #333;
+    }
+    .tooltip-wrapper:hover .tooltip { opacity: 1; }
+
+    /* ===== CURSOR OVERLAY ===== */
+    .remote-cursor {
+      position: absolute;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .cursor-label {
+      background: #4262ff;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    /* ===== SCROLLBARS ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    /* ===== RIGHT PANEL (comments/reactions) ===== */
+    #right-panel {
+      position: fixed;
+      top: 56px;
+      right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 90;
+    }
+    .right-panel-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--color-white);
+      border: none;
+      border-radius: var(--radius-md);
+      box-shadow: var(--color-toolbar-shadow);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      transition: background 0.15s;
+    }
+    .right-panel-btn:hover { background: var(--color-hover); color: var(--color-text); }
+    .right-panel-btn svg { width: 18px; height: 18px; }
+
+    /* ===== CANVAS PAN/ZOOM INTERACTION ===== */
+    #canvas-container.panning { cursor: grabbing !important; }
+    #canvas-container.pan-mode { cursor: grab; }
+
+    /* ===== SELECTION BOX ===== */
+    .selection-box {
+      position: absolute;
+      border: 2px solid #4262ff;
+      background: rgba(66, 98, 255, 0.08);
+      pointer-events: none;
+      z-index: 30;
+      border-radius: 2px;
+      display: none;
+    }
+
+    /* ===== CONTEXT MENU ===== */
+    .ctx-menu {
+      position: fixed;
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      padding: 4px;
+      z-index: 1000;
+      min-width: 180px;
+      display: none;
+    }
+    .ctx-menu.visible { display: block; }
+    .ctx-item {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-text);
+    }
+    .ctx-item:hover { background: var(--color-hover); }
+    .ctx-item.danger { color: #dc3545; }
+    .ctx-divider { height: 1px; background: var(--color-border); margin: 4px 0; }
+    .ctx-shortcut { margin-left: auto; font-size: 11px; color: #999; }
+
+    /* ===== STATUS BAR ===== */
+    #status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    /* ===== NOTIFICATION ===== */
+    .notification {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .notification.show { opacity: 1; }
+
+    /* ===== BOARD CONTENT AREA ===== */
+    #board-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      width: 4000px;
+      height: 3000px;
+    }
+
+    /* ===== TAG / LABEL styles ===== */
+    .section-label {
+      position: absolute;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      cursor: pointer;
+    }
+
+    .arrow-connector {
+      position: absolute;
+      stroke: #666;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* Frame styling */
+    .frame-container {
+      position: absolute;
+    }
+    .frame-header {
+      background: #1a1a1a;
+      color: white;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px 4px 0 0;
+    }
+    .frame-body {
+      border: 2px solid #1a1a1a;
+      border-top: none;
+      background: white;
+      border-radius: 0 0 4px 4px;
+    }
+
+    /* Color indicator dot on tools */
+    .color-dot {
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-logo">
+      <div class="loader-logo-inner">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="loader-text">Loading board...</div>
+  </div>
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <!-- Miro Logo -->
+      <div class="miro-logo" title="Go to dashboard">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25.47 7.41H22.8l-4.77 7.74-4.77-7.74H8L14.4 18 8 28.59h5.29l4.74-7.74 4.74 7.74H28L21.6 18 28 7.41h-2.53z" fill="#050038"/>
+        </svg>
+      </div>
+
+      <div class="topbar-divider"></div>
+
+      <!-- Board breadcrumb -->
+      <div class="board-breadcrumb">
+        <a onclick="showNotification('Go to dashboard')">MyRACP</a>
+        <span class="separator">/</span>
+        <span class="board-title" title="MyRACP - Integrations Alignment Workshop - Part 1">
+          MyRACP - Integrations Alignment Workshop - Part 1
+        </span>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <!-- Timer badge -->
+      <div class="timer-badge" title="Timer">
+        <svg viewBox="0 0 14 14" fill="none" width="14" height="14">
+          <circle cx="7" cy="7" r="6" stroke="#856404" stroke-width="1.5"/>
+          <path d="M7 4v3l2 2" stroke="#856404" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span id="timer-display">10:00</span>
+      </div>
+
+      <!-- Presentation mode -->
+      <button class="btn-icon" title="Start presentation" onclick="showNotification('Presentation mode')">
+        <svg viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="2" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M9 14v2M6 16h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Reactions -->
+      <button class="btn-icon" title="Reactions" onclick="showNotification('Reactions')">
+        <svg viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6 11s.9 2 3 2 3-2 3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="6.5" cy="7.5" r="1" fill="currentColor"/>
+          <circle cx="11.5" cy="7.5" r="1" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Collaborators -->
+      <div class="collaborators">
+        <div class="collab-avatar ca-1" title="Sarah M.">SM</div>
+        <div class="collab-avatar ca-2" title="Tom K.">TK</div>
+        <div class="collab-avatar ca-3" title="Priya R.">PR</div>
+      </div>
+
+      <div class="topbar-divider"></div>
+
+      <!-- Share button -->
+      <button class="btn-share" onclick="showNotification('Share dialog')">
+        <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+          <path d="M12 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM4 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM12 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke="white" stroke-width="1.5"/>
+          <path d="M5.7 9.2l4.6-2.4M5.7 7.2l4.6 2.4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Share
+      </button>
+
+      <!-- User avatar -->
+      <div class="user-avatar" title="Russel Sese">RS</div>
+
+      <!-- More options -->
+      <button class="btn-icon" title="More options" onclick="toggleMenu()">
+        <svg viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="4" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="9" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="14" r="1.5" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- LEFT TOOLBAR -->
+  <aside id="left-toolbar">
+    <!-- Main tools panel -->
+    <div class="toolbar-panel">
+
+      <!-- Select / Pointer -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn active" id="tool-select" onclick="setTool('select')" title="Select">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M4 2L4 14L7.5 11L9.5 16L11.5 15L9.5 10L13 10L4 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="currentColor"/>
+          </svg>
+        </button>
+        <span class="tooltip">Select (V)</span>
+      </div>
+
+      <!-- Hand / Pan -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-hand" onclick="setTool('hand')" title="Hand">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M10 3V10M10 3C10 2.4 9.6 2 9 2S8 2.4 8 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 4.5V10M12 4.5C12 3.9 12.4 3.5 13 3.5S14 3.9 14 4.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8 5V10M8 5C8 4.4 7.6 4 7 4S6 4.4 6 5V12C6 15 8 17 11 17C13.8 17 16 14.8 16 12V10C16 9.4 15.6 9 15 9S14 9.4 14 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Hand (H)</span>
+      </div>
+    </div>
+
+    <div class="tool-divider" style="width:28px; height:1px; background: #e0e0e0; margin: 0;"></div>
+
+    <!-- Drawing tools panel -->
+    <div class="toolbar-panel">
+
+      <!-- Sticky note -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-sticky" onclick="setTool('sticky'); addSticky()" title="Sticky note">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M3 4C3 3.4 3.4 3 4 3H16C16.6 3 17 3.4 17 4V13L12 18H4C3.4 18 3 17.6 3 17V4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M12 13V18L17 13H12Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <div class="color-dot" style="background: #ffd900;"></div>
+        </button>
+        <span class="tooltip">Sticky note (S)</span>
+      </div>
+
+      <!-- Text -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-text" onclick="setTool('text'); addText()" title="Text">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M3 5H17M10 5V16M7 16H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Text (T)</span>
+      </div>
+
+      <!-- Shape -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-shape" onclick="setTool('shape')" title="Shapes">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="14" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 14L6 10L9 14H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <rect x="11" y="12" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <span class="tooltip">Shapes (S)</span>
+      </div>
+
+      <!-- Pen / Draw -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-pen" onclick="setTool('pen')" title="Pen">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M14.5 3.5L16.5 5.5L7 15L4 16L5 13L14.5 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M13 5L15 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="color-dot" style="background: #1a1a1a;"></div>
+        </button>
+        <span class="tooltip">Pen (P)</span>
+      </div>
+
+      <!-- Connector/Line -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-connect" onclick="setTool('connect')" title="Line/Connector">
+          <svg viewBox="0 0 20 20" fill="none">
+            <circle cx="4" cy="16" r="2" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="16" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M5.5 14.5L14.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Connector (X)</span>
+      </div>
+
+      <!-- Image -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-image" onclick="setTool('image'); showNotification('Image upload')" title="Upload image">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="7" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M2 14L6.5 9.5L10 13L13 10L18 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Image (I)</span>
+      </div>
+    </div>
+
+    <div class="tool-divider" style="width:28px; height:1px; background: #e0e0e0; margin: 0;"></div>
+
+    <!-- Extras panel -->
+    <div class="toolbar-panel">
+      <!-- Templates -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-template" onclick="showNotification('Templates library')" title="Templates">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <span class="tooltip">Templates</span>
+      </div>
+
+      <!-- Apps / Plugins -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-apps" onclick="showNotification('Apps & Integrations')" title="Apps">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="12" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="2" y="12" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M15 12V18M12 15H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Apps (A)</span>
+      </div>
+
+      <!-- Comments -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-comment" onclick="setTool('comment')" title="Comment">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M3 4C3 3.4 3.4 3 4 3H16C16.6 3 17 3.4 17 4V13C17 13.6 16.6 14 16 14H7L3 17V4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Comment (C)</span>
+      </div>
+
+      <!-- AI Assistant -->
+      <div class="tooltip-wrapper">
+        <button class="tool-btn" id="tool-ai" onclick="showNotification('Miro AI')" title="Miro AI">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M10 2L12 7L17 10L12 13L10 18L8 13L3 10L8 7L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="tooltip">Miro AI</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div class="tooltip-wrapper" style="--tip-side: right;">
+      <button class="right-panel-btn" title="Comments" onclick="showNotification('Comments panel')">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path d="M2 3C2 2.4 2.4 2 3 2H15C15.6 2 16 2.4 16 3V12C16 12.6 15.6 13 15 13H6L2 16V3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M5 6H13M5 9H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="tooltip-wrapper">
+      <button class="right-panel-btn" title="Tags" onclick="showNotification('Tags')">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path d="M2 2H8L16 10L10 16L2 8V2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="5.5" cy="5.5" r="1" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- CANVAS CONTAINER -->
+  <div id="canvas-container">
+    <div id="canvas">
+      <div id="board-content">
+
+        <!-- SVG for connectors -->
+        <svg id="connectors-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+          <!-- Arrow connectors between stickies -->
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#888" />
+            </marker>
+          </defs>
+        </svg>
+
+        <!-- ====== BOARD ELEMENTS ====== -->
+
+        <!-- Section title -->
+        <div class="section-label" style="left:180px; top:80px; font-size:28px;">
+          MyRACP - Integrations Alignment Workshop
+        </div>
+        <div class="text-label subheading" style="left:180px; top:122px; font-size:14px; color:#666;">
+          Part 1 — Current State Assessment
+        </div>
+
+        <!-- FRAME 1: Integration Overview -->
+        <div class="board-frame" style="left:180px; top:160px; width:700px; height:480px; padding:20px;">
+          <div class="frame-title">Integration Overview</div>
+
+          <!-- Sticky notes cluster 1 -->
+          <div class="sticky-note yellow" style="left:20px; top:20px;">
+            RACP Member Portal
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">Core system</small>
+          </div>
+          <div class="sticky-note blue-light" style="left:185px; top:20px;">
+            Salesforce CRM
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">Member data sync</small>
+          </div>
+          <div class="sticky-note green" style="left:350px; top:20px;">
+            Learning Management
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">CPD tracking</small>
+          </div>
+          <div class="sticky-note pink" style="left:515px; top:20px;">
+            Finance / ERP
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">Payments & billing</small>
+          </div>
+
+          <div class="sticky-note orange" style="left:20px; top:185px;">
+            Azure AD / SSO
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">Identity & access</small>
+          </div>
+          <div class="sticky-note purple" style="left:185px; top:185px;">
+            Event Management
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">Registration platform</small>
+          </div>
+          <div class="sticky-note teal" style="left:350px; top:185px;">
+            Email / Comms
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">Notification service</small>
+          </div>
+          <div class="sticky-note white" style="left:515px; top:185px;">
+            Document Management
+            <br><small style="font-size:11px; opacity:0.7; margin-top:4px; display:block;">SharePoint / DMS</small>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="sticky-note yellow" style="left:20px; top:350px; width:120px; height:100px; font-size:11px;">
+            API Gateway
+          </div>
+          <div class="sticky-note blue-light" style="left:155px; top:350px; width:120px; height:100px; font-size:11px;">
+            Data Warehouse
+          </div>
+          <div class="sticky-note green" style="left:290px; top:350px; width:120px; height:100px; font-size:11px;">
+            Reporting / BI
+          </div>
+          <div class="sticky-note pink" style="left:425px; top:350px; width:240px; height:100px; font-size:11px;">
+            ⚠️ Legacy Systems (decommission in progress)
+          </div>
+        </div>
+
+        <!-- FRAME 2: Pain Points -->
+        <div class="board-frame" style="left:920px; top:160px; width:500px; height:480px; padding:20px;">
+          <div class="frame-title">Pain Points & Issues</div>
+
+          <div class="sticky-note pink" style="left:20px; top:20px; width:200px;">
+            🔴 Data duplication across Salesforce &amp; Member Portal — manual reconciliation required weekly
+          </div>
+          <div class="sticky-note orange" style="left:240px; top:20px; width:200px;">
+            🟠 No real-time sync for CPD completion — delays up to 24hrs
+          </div>
+          <div class="sticky-note yellow" style="left:20px; top:195px; width:200px;">
+            🟡 SSO partial rollout — 30% of staff still using separate credentials
+          </div>
+          <div class="sticky-note pink" style="left:240px; top:195px; width:200px;">
+            🔴 Event registrations not automatically updating member records
+          </div>
+          <div class="sticky-note orange" style="left:20px; top:370px; width:200px; height:80px; font-size:11px;">
+            🟠 Finance reconciliation takes 3 days per month manually
+          </div>
+          <div class="sticky-note yellow" style="left:240px; top:370px; width:200px; height:80px; font-size:11px;">
+            🟡 Email suppression lists inconsistent across platforms
+          </div>
+        </div>
+
+        <!-- FRAME 3: Prioritization Matrix -->
+        <div class="board-frame" style="left:180px; top:700px; width:700px; height:360px; padding:20px;">
+          <div class="frame-title">Prioritization Matrix</div>
+
+          <!-- Matrix labels -->
+          <div class="text-label" style="left:20px; top:20px; font-weight:600; font-size:12px; color:#888;">
+            ← LOW EFFORT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HIGH EFFORT →
+          </div>
+          <div class="text-label" style="left:20px; top:40px; font-size:11px; color:#888; transform: rotate(-90deg); transform-origin: left center; top:200px;">
+            ↑ HIGH IMPACT
+          </div>
+
+          <!-- Quadrant lines (drawn as borders) -->
+          <div style="position:absolute; left:50%; top:55px; bottom:10px; width:1px; background:#ddd;"></div>
+          <div style="position:absolute; left:20px; right:10px; top:50%; height:1px; background:#ddd;"></div>
+
+          <!-- Quadrant labels -->
+          <div style="position:absolute; left:60px; top:65px; font-size:11px; color:#4caf50; font-weight:600;">Quick Wins</div>
+          <div style="position:absolute; right:30px; top:65px; font-size:11px; color:#2196f3; font-weight:600; text-align:right;">Strategic</div>
+          <div style="position:absolute; left:60px; bottom:25px; font-size:11px; color:#ff9800; font-weight:600;">Low Priority</div>
+          <div style="position:absolute; right:30px; bottom:25px; font-size:11px; color:#f44336; font-weight:600; text-align:right;">Reconsider</div>
+
+          <!-- Items in matrix -->
+          <div class="sticky-note green" style="left:60px; top:90px; width:120px; height:80px; font-size:10px; padding:8px;">
+            SSO Full Rollout
+          </div>
+          <div class="sticky-note green" style="left:200px; top:120px; width:120px; height:80px; font-size:10px; padding:8px;">
+            CPD Real-time Sync
+          </div>
+          <div class="sticky-note blue-light" style="left:390px; top:90px; width:130px; height:80px; font-size:10px; padding:8px;">
+            Salesforce ↔ Portal Deep Integration
+          </div>
+          <div class="sticky-note orange" style="left:75px; top:240px; width:120px; height:80px; font-size:10px; padding:8px;">
+            Legacy Decommission
+          </div>
+          <div class="sticky-note yellow" style="left:390px; top:240px; width:130px; height:80px; font-size:10px; padding:8px;">
+            Custom Reporting Layer
+          </div>
+        </div>
+
+        <!-- FRAME 4: Next Steps -->
+        <div class="board-frame" style="left:920px; top:700px; width:500px; height:360px; padding:20px;">
+          <div class="frame-title">Next Steps &amp; Actions</div>
+
+          <!-- Checklist style items -->
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+            <div style="display:flex; align-items:flex-start; gap:10px; padding:10px; background:#f9fafb; border-radius:8px; border-left:3px solid #4262ff;">
+              <span style="font-size:16px;">✅</span>
+              <div>
+                <div style="font-weight:600; font-size:13px;">Map all current integration points</div>
+                <div style="font-size:11px; color:#666; margin-top:2px;">Owner: IT Architecture team · Due: Apr 20</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px; padding:10px; background:#f9fafb; border-radius:8px; border-left:3px solid #ff9800;">
+              <span style="font-size:16px;">🔄</span>
+              <div>
+                <div style="font-weight:600; font-size:13px;">Define SSO completion roadmap</div>
+                <div style="font-size:11px; color:#666; margin-top:2px;">Owner: Security · Due: Apr 25</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px; padding:10px; background:#f9fafb; border-radius:8px; border-left:3px solid #4caf50;">
+              <span style="font-size:16px;">📋</span>
+              <div>
+                <div style="font-weight:600; font-size:13px;">Evaluate real-time CPD sync options</div>
+                <div style="font-size:11px; color:#666; margin-top:2px;">Owner: Digital Products · Due: May 1</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px; padding:10px; background:#f9fafb; border-radius:8px; border-left:3px solid #f44336;">
+              <span style="font-size:16px;">🗓️</span>
+              <div>
+                <div style="font-weight:600; font-size:13px;">Schedule Part 2 workshop</div>
+                <div style="font-size:11px; color:#666; margin-top:2px;">Owner: Project Office · Due: Apr 22</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remote cursor -->
+        <div class="remote-cursor" id="cursor-sarah" style="left:650px; top:350px;">
+          <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
+            <path d="M1 1L1 16L5 12L8 18L11 17L8 11L14 11L1 1Z" fill="#ff6b6b" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <div class="cursor-label" style="background:#ff6b6b;">Sarah M.</div>
+        </div>
+
+        <div class="remote-cursor" id="cursor-tom" style="left:1100px; top:280px;">
+          <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
+            <path d="M1 1L1 16L5 12L8 18L11 17L8 11L14 11L1 1Z" fill="#4ecdc4" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <div class="cursor-label" style="background:#4ecdc4;">Tom K.</div>
+        </div>
+
+      </div><!-- /board-content -->
+    </div><!-- /canvas -->
+  </div><!-- /canvas-container -->
+
+  <!-- ZOOM CONTROLS (bottom right) -->
+  <div id="canvas-controls">
+    <div class="zoom-panel">
+      <!-- Fit to view -->
+      <button class="zoom-btn" title="Fit to view (Ctrl+Shift+H)" onclick="fitToView()">
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M2 6V2H6M10 2H14V6M14 10V14H10M6 14H2V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="zoom-divider"></div>
+      <!-- Zoom in -->
+      <button class="zoom-btn" title="Zoom in (Ctrl++)" onclick="zoomIn()">
+        <svg viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5 7H9M7 5V9M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <!-- Zoom level display -->
+      <span class="zoom-level" id="zoom-display" onclick="resetZoom()" title="Reset zoom (Ctrl+0)">100%</span>
+      <!-- Zoom out -->
+      <button class="zoom-btn" title="Zoom out (Ctrl+-)" onclick="zoomOut()">
+        <svg viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5 7H9M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTROLS (bottom center) -->
+  <div id="bottom-center">
+    <div class="page-panel">
+      <button class="page-btn" title="Previous page" onclick="showNotification('Previous page')">
+        <svg viewBox="0 0 14 14" fill="none">
+          <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="page-indicator">Page 1 / 3</span>
+      <button class="page-btn" title="Next page" onclick="showNotification('Next page')">
+        <svg viewBox="0 0 14 14" fill="none">
+          <path d="M5 2L10 7L5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div style="width:1px; height:20px; background:#e0e0e0; margin: 0 4px;"></div>
+      <button class="page-btn" title="Add page" onclick="showNotification('Add new page')">
+        <svg viewBox="0 0 14 14" fill="none">
+          <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div class="notification" id="notification"></div>
+
+  <!-- CONTEXT MENU -->
+  <div class="ctx-menu" id="ctx-menu">
+    <div class="ctx-item" onclick="closeMenu()">
+      <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+        <path d="M2 4H14M4 4L5 13H11L12 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 7V11M10 7V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M6 4V2H10V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Paste
+      <span class="ctx-shortcut">⌘V</span>
+    </div>
+    <div class="ctx-item" onclick="closeMenu()">
+      <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+        <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M5 8H11M8 5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      Add sticky note
+      <span class="ctx-shortcut">S</span>
+    </div>
+    <div class="ctx-item" onclick="closeMenu()">Add text</div>
+    <div class="ctx-item" onclick="closeMenu()">Add shape</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item" onclick="closeMenu()">Select all <span class="ctx-shortcut">⌘A</span></div>
+    <div class="ctx-item" onclick="closeMenu()">Fit to view <span class="ctx-shortcut">⌘⇧H</span></div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item" onclick="closeMenu()">Board settings</div>
+  </div>
+
+  <script>
+    // ===== STATE =====
+    let currentTool = 'select';
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let isPanning = false;
+    let panStart = { x: 0, y: 0 };
+    let panOrigin = { x: 0, y: 0 };
+    let stickyCount = 0;
+    let timerInterval;
+    let timerSeconds = 600;
+
+    // Colors for auto-cycling stickies
+    const stickyColors = ['yellow', 'blue-light', 'green', 'pink', 'orange', 'purple', 'teal', 'white'];
+    let stickyColorIdx = 0;
+
+    const canvas = document.getElementById('canvas');
+    const boardContent = document.getElementById('board-content');
+    const canvasContainer = document.getElementById('canvas-container');
+    const zoomDisplay = document.getElementById('zoom-display');
+    const notification = document.getElementById('notification');
+    const ctxMenu = document.getElementById('ctx-menu');
+
+    // ===== LOADER =====
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+        // Fit to view on load
+        setTimeout(() => fitToView(), 100);
+      }, 1400);
+    });
+
+    // ===== TOOL SELECTION =====
+    function setTool(name) {
+      currentTool = name;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('tool-' + name);
+      if (btn) btn.classList.add('active');
+
+      if (name === 'hand') {
+        canvasContainer.classList.add('pan-mode');
+      } else {
+        canvasContainer.classList.remove('pan-mode');
+      }
+    }
+
+    // ===== ZOOM FUNCTIONS =====
+    function applyTransform() {
+      boardContent.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+      boardContent.style.transformOrigin = '0 0';
+      zoomDisplay.textContent = Math.round(zoom * 100) + '%';
+    }
+
+    function zoomIn() {
+      const maxZoom = 4;
+      if (zoom < maxZoom) {
+        const rect = canvasContainer.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const prevZoom = zoom;
+        zoom = Math.min(maxZoom, zoom * 1.25);
+        panX = cx - (cx - panX) * (zoom / prevZoom);
+        panY = cy - (cy - panY) * (zoom / prevZoom);
+        applyTransform();
+      }
+    }
+
+    function zoomOut() {
+      const minZoom = 0.1;
+      if (zoom > minZoom) {
+        const rect = canvasContainer.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const prevZoom = zoom;
+        zoom = Math.max(minZoom, zoom / 1.25);
+        panX = cx - (cx - panX) * (zoom / prevZoom);
+        panY = cy - (cy - panY) * (zoom / prevZoom);
+        applyTransform();
+      }
+    }
+
+    function resetZoom() {
+      zoom = 1;
+      panX = 0;
+      panY = 0;
+      applyTransform();
+    }
+
+    function fitToView() {
+      const rect = canvasContainer.getBoundingClientRect();
+      const contentW = 1440;
+      const contentH = 1140;
+      const scaleX = (rect.width - 160) / contentW;
+      const scaleY = (rect.height - 100) / contentH;
+      zoom = Math.min(scaleX, scaleY, 1);
+      panX = (rect.width - contentW * zoom) / 2;
+      panY = (rect.height - contentH * zoom) / 2;
+      applyTransform();
+    }
+
+    // ===== PAN / DRAG =====
+    canvasContainer.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      if (currentTool === 'hand' || e.altKey || e.button === 1) {
+        isPanning = true;
+        panStart = { x: e.clientX, y: e.clientY };
+        panOrigin = { x: panX, y: panY };
+        canvasContainer.classList.add('panning');
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isPanning) {
+        panX = panOrigin.x + (e.clientX - panStart.x);
+        panY = panOrigin.y + (e.clientY - panStart.y);
+        applyTransform();
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isPanning = false;
+      canvasContainer.classList.remove('panning');
+    });
+
+    // ===== SCROLL TO ZOOM =====
+    canvasContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = canvasContainer.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const prevZoom = zoom;
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      zoom = Math.min(4, Math.max(0.1, zoom * delta));
+      panX = mx - (mx - panX) * (zoom / prevZoom);
+      panY = my - (my - panY) * (zoom / prevZoom);
+      applyTransform();
+    }, { passive: false });
+
+    // ===== CONTEXT MENU =====
+    canvasContainer.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      ctxMenu.style.left = e.clientX + 'px';
+      ctxMenu.style.top = e.clientY + 'px';
+      ctxMenu.classList.add('visible');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!ctxMenu.contains(e.target)) {
+        ctxMenu.classList.remove('visible');
+      }
+    });
+
+    function closeMenu() {
+      ctxMenu.classList.remove('visible');
+    }
+
+    function toggleMenu() {
+      showNotification('Board menu');
+    }
+
+    // ===== ADD ELEMENTS =====
+    function addSticky() {
+      const colors = stickyColors;
+      const color = colors[stickyColorIdx % colors.length];
+      stickyColorIdx++;
+
+      const sticky = document.createElement('div');
+      sticky.className = `sticky-note ${color}`;
+
+      // Place in visible area
+      const rect = canvasContainer.getBoundingClientRect();
+      const bx = (rect.width / 2 - panX) / zoom + (Math.random() * 100 - 50);
+      const by = (rect.height / 2 - panY) / zoom + (Math.random() * 100 - 50);
+      sticky.style.left = bx + 'px';
+      sticky.style.top = by + 'px';
+      sticky.style.cursor = 'pointer';
+      sticky.style.zIndex = '20';
+      sticky.contentEditable = 'true';
+      sticky.textContent = 'New note';
+      sticky.style.outline = '2px solid #4262ff';
+      sticky.style.outlineOffset = '2px';
+
+      boardContent.appendChild(sticky);
+      sticky.focus();
+
+      // Make draggable
+      makeDraggable(sticky);
+
+      sticky.addEventListener('blur', () => {
+        sticky.style.outline = 'none';
+        setTool('select');
+      });
+    }
+
+    function addText() {
+      const textEl = document.createElement('div');
+      textEl.className = 'text-label';
+      const rect = canvasContainer.getBoundingClientRect();
+      const bx = (rect.width / 2 - panX) / zoom;
+      const by = (rect.height / 2 - panY) / zoom;
+      textEl.style.left = bx + 'px';
+      textEl.style.top = by + 'px';
+      textEl.style.minWidth = '100px';
+      textEl.style.minHeight = '24px';
+      textEl.contentEditable = 'true';
+      textEl.textContent = 'Type here...';
+      textEl.style.outline = '1px dashed #4262ff';
+      textEl.style.zIndex = '20';
+      boardContent.appendChild(textEl);
+      textEl.focus();
+      makeDraggable(textEl);
+      textEl.addEventListener('blur', () => {
+        textEl.style.outline = 'none';
+        setTool('select');
+      });
+    }
+
+    // ===== MAKE ELEMENTS DRAGGABLE =====
+    function makeDraggable(el) {
+      let dragging = false;
+      let startX, startY, origLeft, origTop;
+
+      el.addEventListener('mousedown', (e) => {
+        if (currentTool !== 'select') return;
+        if (e.target.isContentEditable && e.detail === 2) return;
+        dragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        origLeft = parseInt(el.style.left) || 0;
+        origTop = parseInt(el.style.top) || 0;
+        el.style.zIndex = '50';
+        e.stopPropagation();
+        e.preventDefault();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const dx = (e.clientX - startX) / zoom;
+        const dy = (e.clientY - startY) / zoom;
+        el.style.left = (origLeft + dx) + 'px';
+        el.style.top = (origTop + dy) + 'px';
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (dragging) {
+          dragging = false;
+          el.style.zIndex = '';
+        }
+      });
+    }
+
+    // Make existing elements draggable
+    document.querySelectorAll('.sticky-note, .shape-rect, .text-label').forEach(el => {
+      makeDraggable(el);
+    });
+
+    // ===== KEYBOARD SHORTCUTS =====
+    document.addEventListener('keydown', (e) => {
+      if (e.target.isContentEditable) return;
+
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case '=': case '+': e.preventDefault(); zoomIn(); break;
+          case '-': e.preventDefault(); zoomOut(); break;
+          case '0': e.preventDefault(); resetZoom(); break;
+          case 'z': e.preventDefault(); showNotification('Undo'); break;
+          case 'y': e.preventDefault(); showNotification('Redo'); break;
+        }
+        if (e.shiftKey && e.key === 'H') {
+          e.preventDefault(); fitToView();
+        }
+        return;
+      }
+
+      switch (e.key) {
+        case 'v': case 'V': setTool('select'); break;
+        case 'h': case 'H': setTool('hand'); break;
+        case 's': case 'S': setTool('sticky'); break;
+        case 't': case 'T': setTool('text'); break;
+        case 'p': case 'P': setTool('pen'); break;
+        case 'x': case 'X': setTool('connect'); break;
+        case 'Escape': setTool('select'); break;
+      }
+    });
+
+    // ===== NOTIFICATION =====
+    let notifTimeout;
+    function showNotification(msg) {
+      clearTimeout(notifTimeout);
+      notification.textContent = msg;
+      notification.classList.add('show');
+      notifTimeout = setTimeout(() => notification.classList.remove('show'), 2000);
+    }
+
+    // ===== TIMER =====
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          showNotification('Time is up!');
+          return;
+        }
+        timerSeconds--;
+        const m = Math.floor(timerSeconds / 60);
+        const s = timerSeconds % 60;
+        document.getElementById('timer-display').textContent =
+          String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      }, 1000);
+    }
+
+    // Start timer automatically
+    startTimer();
+
+    // ===== ANIMATE REMOTE CURSORS =====
+    function animateCursor(id, targetX, targetY, delay) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      setTimeout(() => {
+        setInterval(() => {
+          const dx = (Math.random() - 0.5) * 80;
+          const dy = (Math.random() - 0.5) * 60;
+          const curX = parseInt(el.style.left) || targetX;
+          const curY = parseInt(el.style.top) || targetY;
+          el.style.transition = 'left 1.5s ease, top 1.5s ease';
+          el.style.left = (curX + dx) + 'px';
+          el.style.top = (curY + dy) + 'px';
+        }, 2000 + Math.random() * 1000);
+      }, delay);
+    }
+
+    animateCursor('cursor-sarah', 650, 350, 0);
+    animateCursor('cursor-tom', 1100, 280, 800);
+
+    // ===== INITIAL RENDER =====
+    applyTransform();
+  </script>
+</body>
+</html>
